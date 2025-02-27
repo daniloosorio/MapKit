@@ -49,6 +49,11 @@ class MapViewModel {
     
     var mapStyle : MyMapStyle = .standard
     
+    var isLoading: Bool = false
+    var viewInRegion: MKCoordinateRegion?
+    var routeDisplaying: Bool = false
+    var lookArounScene: MKLookAroundScene?
+    
     init(location: CLLocation?,
          region:MKCoordinateRegion){
         self.cameraPosition = .region(region)
@@ -56,4 +61,13 @@ class MapViewModel {
         self.region = region
     }
     
+}
+
+extension MapViewModel{
+    func fetchLookAroungPreview(coordinate: CLLocationCoordinate2D) async {
+        isLoading = true
+        lookArounScene = nil
+        let request = MKLookAroundSceneRequest(coordinate: coordinate)
+        lookArounScene = try? await request.scene
+    }
 }
