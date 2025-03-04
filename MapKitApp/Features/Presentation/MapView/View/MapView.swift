@@ -35,6 +35,15 @@ struct MapView: View {
         Map(position : $viewModel.cameraPosition, selection: $viewModel.mapSelection){
             UserAnnotation()
             
+            if let route = viewModel.route {
+                if let coordinate = viewModel.destinationCoordinate {
+                    Annotation("Destination",coordinate: coordinate){
+                        AnimatedMarker(systemName: "mappin.circle.fill", imageColor: .red, backgroundColor: .clear)
+                    }.annotationTitles(.hidden)
+                }
+                MapPolyline(route.polyline)
+                    .stroke(.red, lineWidth: 7)
+            }
             if viewModel.lookArounScene != nil{
                 if let coordinate = viewModel.viewInRegion?.center {
                     Annotation("Library",coordinate: coordinate){
@@ -55,6 +64,18 @@ struct MapView: View {
             .overlay(alignment: .bottomLeading){
                 if !viewModel.routeDisplaying{
                     bottomLeadingOverlayView
+                }
+            }
+            .safeAreaInset(edge: .bottom){
+                if viewModel.routeDisplaying{
+                    endRouteButtonView
+                }
+            }
+            .onTapGesture {
+                if !viewModel.routeDisplaying{
+                    Task {
+                        await viewModel.calculateRoute(from: viewModel.location?.coordinate, to: viewModel.viewInRegion?.center)
+                    }
                 }
             }
     }

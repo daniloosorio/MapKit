@@ -53,6 +53,8 @@ class MapViewModel {
     var viewInRegion: MKCoordinateRegion?
     var routeDisplaying: Bool = false
     var lookArounScene: MKLookAroundScene?
+    var route: MKRoute?
+    var destinationCoordinate: CLLocationCoordinate2D?
     
     init(location: CLLocation?,
          region:MKCoordinateRegion){
@@ -69,5 +71,32 @@ extension MapViewModel{
         lookArounScene = nil
         let request = MKLookAroundSceneRequest(coordinate: coordinate)
         lookArounScene = try? await request.scene
+    }
+    
+    func calculateRoute(from source:CLLocationCoordinate2D?,
+                        to destination: CLLocationCoordinate2D?)async {
+        guard let source,
+              let destination else {return }
+        isLoading = true
+        let request = MKDirections.Request()
+        request.source = .init(placemark: .init(coordinate: source))
+        request.destination = .init(placemark: .init(coordinate: destination))
+        request.transportType = .automobile
+        
+        let result = try? await MKDirections(request: request).calculate()
+        route = result?.routes.first
+        mapSelection = request.destination
+        destinationCoordinate = destination
+        
+        withAnimation(.snappy){
+            routeDisplaying = true
+            isLoading = false
+        }
+    }
+    
+    func resetRoute(){
+        routeDisplaying = false
+        route = nil
+        destinationCoordinate = nil
     }
 }

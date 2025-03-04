@@ -78,6 +78,26 @@ extension MapView {
 }
 
 extension MapView {
+    var endRouteButtonView: some View {
+        Button("End Route") {
+            withAnimation(.snappy){
+                viewModel.resetRoute()
+                if let coordinate = viewModel.mapSelection?.placemark.coordinate {
+                    viewModel.cameraPosition = .region(.init(center: coordinate, latitudinalMeters: 1000, longitudinalMeters: 1000))
+                }
+            }
+        }
+        .foregroundStyle(.white)
+        .frame(maxWidth: .infinity)
+        .contentShape(Rectangle())
+        .padding(.vertical,12)
+        .background(.red.gradient, in: .rect(cornerRadius: 15))
+        .padding()
+        .background(.ultraThinMaterial)
+    }
+}
+
+extension MapView {
     var lookAroundPreview: some View {
         VStack {
             LookAroundPreview(scene: $viewModel.lookArounScene)
